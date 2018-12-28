@@ -1,36 +1,25 @@
-import React, { Component, Fragment } from 'react'
-import ListContacts from './ListContacts'
+import React, { Component, Fragment } from "react"
+import { Route } from "react-router-dom"
+import ListContacts from "./ListContacts"
+import * as ContactsApi from "./utils/ContactsAPI"
+import CreateContact from "./CreateContact"
 
 class App extends Component {
   state = {
-    contacts: [
-     {
-       "id": "karen",
-       "name": "Karen Isgrigg",
-       "handle": "karen_isgrigg",
-       "avatarURL": "http://localhost:5001/karen.jpg"
-     },
-     {
-       "id": "richard",
-       "name": "Richard Kalehoff",
-       "handle": "richardkalehoff",
-       "avatarURL": "http://localhost:5001/richard.jpg"
-     },
-     {
-       "id": "tyler",
-       "name": "Tyler McGinnis",
-       "handle": "tylermcginnis",
-       "avatarURL": "http://localhost:5001/tyler.jpg"
-     }
-    ]
+    contacts: []
   }
-
+  componentDidMount() {
+    ContactsApi.getAll().then((contacts) => {
+      this.setState(() => ({contacts}))
+    })
+  }
   removeContact(contact) {
     this.setState((current) => ({
       contacts: current.contacts.filter((c) => {
         return c.id !== contact.id
       })
     }))
+    ContactsApi.remove(contact)
   }
 
   removeContact = this.removeContact.bind(this)
@@ -38,10 +27,13 @@ class App extends Component {
   render() {
     return (
       <Fragment>
-        <ListContacts
-          contacts={this.state.contacts}
-          onDelete={this.removeContact}
-        />
+        <Route exact path="/" render={() => (
+          <ListContacts
+            contacts={this.state.contacts}
+            onDelete={this.removeContact}
+          />
+        )} />
+        <Route path="/create" component={CreateContact} />
       </Fragment>
     )
   }
